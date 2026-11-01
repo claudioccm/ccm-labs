@@ -20,28 +20,35 @@ const { data: skills } = await useAsyncData('skills-index', () => {
 
 const SKILLS_CHIP = 'Skills'
 
-// Each item is filed under one chip: its category, or "Skills".
+// Each item is filed under its category, or "Skills" for a skill. Prompts
+// that are also offered as a skill show under the Skills chip too (2026-11-01).
 const items = computed(() => [
-  ...(prompts.value ?? []).map(p => ({ ...p, group: p.category as string, kind: 'prompt' as const })),
-  ...(skills.value ?? []).map(s => ({ ...s, category: 'Skill', group: SKILLS_CHIP, kind: 'skill' as const })),
+  ...(prompts.value ?? []).map(p => ({ ...p, group: p.category as string, kind: 'prompt' as const, alsoSkill: !!p.skill })),
+  ...(skills.value ?? []).map(s => ({ ...s, category: 'Skill', group: SKILLS_CHIP, kind: 'skill' as const, alsoSkill: false })),
 ].sort((a, b) => Date.parse(b.date) - Date.parse(a.date)))
+
+function inChip(item: { group: string, alsoSkill: boolean }, chip: string): boolean {
+  return item.group === chip || (chip === SKILLS_CHIP && item.alsoSkill)
+}
 
 // Chips follow the groups present in the listed items, like /writing.
 const chips = computed<{ label: string, category: string | null }[]>(() => {
   const present: string[] = []
   for (const item of items.value) {
-    if (!present.includes(item.group)) present.push(item.group)
+    const groups = item.alsoSkill ? [SKILLS_CHIP, item.group] : [item.group]
+    for (const group of groups) {
+      if (!present.includes(group)) present.push(group)
+    }
   }
   return [{ label: 'All', category: null }, ...present.map(c => ({ label: c, category: c }))]
 })
 
 const activeCategory = ref<string | null>(null) // null = All
 
-const visible = computed(() =>
-  activeCategory.value === null
-    ? items.value
-    : items.value.filter(item => item.group === activeCategory.value),
-)
+const visible = computed(() => {
+  const chip = activeCategory.value
+  return chip === null ? items.value : items.value.filter(item => inChip(item, chip))
+})
 
 const canonical = 'https://ccm-labs.ca/prompts'
 const title = 'Free AI prompts for small businesses — CCM Labs'
@@ -99,6 +106,7 @@ useSeoMeta({
                 :description="prompt.description"
                 :draft="prompt.draft"
                 :kind="prompt.kind"
+                :also-skill="prompt.alsoSkill"
               />
             </li>
           </ul>

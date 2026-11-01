@@ -83,6 +83,8 @@ steps:
   - "Review the email: it's a draft in your email if Gmail or Outlook is connected, otherwise copy it. Check the PDF quote too, if you got one."
 check: Check every number and the scope before it goes out. A plain-words email with the wrong price is worse than jargon.
 builtVersion: The one CCM Labs builds writes the explanation straight from your job record, so it goes out with the quote without retyping anything.
+skill:
+  description: 'Turns your notes from a customer call or site visit into a short plain-words email, plus a PDF quote in a Quotes Project, after confirming every number with you. Use when someone says "explain this job to the customer", "write up this site visit", "turn my call notes into an email", or pastes call or Granola notes about a job.'
 date: 2026-10-16T12:00:00Z
 draft: false
 ---

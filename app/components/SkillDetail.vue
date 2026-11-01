@@ -73,13 +73,13 @@ useSeoMeta({
               class="btn btn-filled prompt-copy__btn"
               :href="files.zip"
               :download="`${slug}.zip`"
-              @click="trackSkillDownload(slug, 'zip')"
+              @click="trackSkillDownload(slug, 'zip', 'skill_page')"
             >Download .zip</a>
             <a
               class="btn btn-ghost prompt-copy__btn"
               :href="files.md"
               download="SKILL.md"
-              @click="trackSkillDownload(slug, 'md')"
+              @click="trackSkillDownload(slug, 'md', 'skill_page')"
             >Download SKILL.md</a>
           </div>
           <a
@@ -87,7 +87,7 @@ useSeoMeta({
             :href="files.md"
             target="_blank"
             rel="noopener"
-            @click="trackSkillDownload(slug, 'view')"
+            @click="trackSkillDownload(slug, 'view', 'skill_page')"
           >Read the file first <span aria-hidden="true">↗</span></a>
         </div>
 
@@ -218,6 +218,7 @@ useSeoMeta({
                 :category="item.category"
                 :audience="item.audience"
                 :description="item.description"
+                :also-skill="!!item.skill"
               />
             </li>
           </ul>

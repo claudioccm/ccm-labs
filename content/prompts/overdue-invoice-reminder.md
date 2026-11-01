@@ -78,6 +78,8 @@ steps:
   - "Read it and send it yourself. If they answer with a problem, deal with the problem. Don't send the next reminder on autopilot."
 check: It only writes drafts, so nothing goes out until you send it. You know if there's a reason they're late, and the AI doesn't.
 builtVersion: The one CCM Labs builds checks your invoices against your bank and drafts the reminder when one goes overdue, ready for you to approve.
+skill:
+  description: 'Writes a reminder for an unpaid invoice in the right tone, from the invoice link, PDF or screenshot, as a draft in your email or ready to copy. Use when someone says "chase this invoice", "they haven''t paid", "payment reminder", "overdue invoice", or shares an unpaid invoice.'
 date: 2026-10-16T12:00:00Z
 draft: false
 ---

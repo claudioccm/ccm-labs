@@ -138,6 +138,8 @@ check: Read every draft before it goes. It only knows what's in your email, and 
 builtVersion: The one I build at CCM Labs knows who's due for a check-in and drafts the message for you.
 keyword: FOLLOWUP
 sourcePost: https://www.instagram.com/ccmlabs/p/DeSmY57DzeX/
+skill:
+  description: 'Finds past clients in your email (read-only), lets you pick who to check in with on a small page, and writes the check-ins as drafts. Use when someone says "check in with past customers", "slow season", "who should I reach out to", or wants to win back old clients.'
 date: 2026-10-09T22:38:00Z
 draft: false
 ---

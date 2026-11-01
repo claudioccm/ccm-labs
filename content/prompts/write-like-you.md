@@ -18,6 +18,8 @@ check: Still read every reply before it goes. Your voice rules don't know today'
 builtVersion: The one CCM Labs builds drafts replies inside your inbox, with each customer's history in front of it.
 keyword: VOICE
 sourcePost: https://www.instagram.com/ccmlabs/p/DeSfGKEErl8/
+skill:
+  description: 'Turns ten of your own messages to customers into 8 to 10 one-line rules for how you write. Use when someone says "learn how I write", "write like me", "match my voice", or shares a batch of their own messages so the AI can copy their style.'
 date: 2026-10-09T21:34:00Z
 draft: false
 ---

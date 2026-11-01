@@ -49,6 +49,8 @@ check: Check every number before it goes on an invoice. Voice mishears, and anyt
 builtVersion: The one CCM Labs builds files those notes into your job system by itself, and reminds you about the follow-up.
 keyword: NOTES
 sourcePost: https://www.instagram.com/ccmlabs/p/DeSg8DJkgFs/
+skill:
+  description: 'Talks you through a job you just finished, one short question at a time (made for voice mode), then makes a notes file with job notes, follow-ups and invoice lines. Use when someone says "write up the job", "job notes", "I just finished a job", or "help me do my notes".'
 date: 2026-10-09T21:50:00Z
 draft: false
 ---

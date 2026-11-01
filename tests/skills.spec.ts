@@ -4,7 +4,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { crc32, createZip } from '../modules/skill-downloads/zip'
-import { buildSkillDownloads } from '../modules/skill-downloads/build'
+import { buildSkillDownloads, promptSkillSlugs } from '../modules/skill-downloads/build'
+import { promptSkillMarkdown, promptSkillZip } from '../server/utils/promptSkill'
 import { skillFiles, trackSkillDownload } from '~/utils/skills'
 
 /**
@@ -98,18 +99,67 @@ describe('trackSkillDownload', () => {
   it('sends skill_download with the skill and format', () => {
     const gtag = vi.fn()
     ;(window as unknown as { gtag: typeof gtag }).gtag = gtag
-    trackSkillDownload('thinking-partner', 'zip')
-    expect(gtag).toHaveBeenCalledWith('event', 'skill_download', { skill: 'thinking-partner', format: 'zip' })
+    trackSkillDownload('thinking-partner', 'zip', 'prompt_page')
+    expect(gtag).toHaveBeenCalledWith('event', 'skill_download', { skill: 'thinking-partner', format: 'zip', source: 'prompt_page' })
   })
 
   it('does nothing when gtag is blocked', () => {
-    expect(() => trackSkillDownload('thinking-partner', 'md')).not.toThrow()
+    expect(() => trackSkillDownload('thinking-partner', 'md', 'skill_page')).not.toThrow()
   })
 
   it('swallows a gtag that throws', () => {
     ;(window as unknown as { gtag: () => void }).gtag = () => {
       throw new Error('broken')
     }
-    expect(() => trackSkillDownload('thinking-partner', 'view')).not.toThrow()
+    expect(() => trackSkillDownload('thinking-partner', 'view', 'skill_page')).not.toThrow()
+  })
+})
+
+describe('promptSkillMarkdown', () => {
+  const prompt = {
+    path: '/prompts/quote-assistant',
+    title: 'Set up a quotes assistant',
+    description: 'Ask for a quote in one line.',
+    prompts: [{ label: 'Paste it', text: 'You write quotes for [BUSINESS NAME], a [TRADE].\n\n## Rules\n\nAsk me. Quotes last [30] days.' }],
+    skill: { description: 'Writes quotes. Use when someone says "quote this job: it\'s urgent".' },
+  }
+
+  it('writes frontmatter with the slug and a safely quoted description', () => {
+    const md = promptSkillMarkdown(prompt)
+    const frontmatter = md.split(/^---$/m)[1]!
+    expect(frontmatter).toContain('name: quote-assistant')
+    const line = frontmatter.split('\n').find(l => l.startsWith('description: '))!
+    expect(JSON.parse(line.slice('description: '.length))).toBe(prompt.skill.description)
+  })
+
+  it('keeps the prompt text word for word and asks for the bracketed details', () => {
+    const md = promptSkillMarkdown(prompt)
+    expect(md).toContain(prompt.prompts[0]!.text)
+    expect(md).toContain('[BUSINESS NAME], [TRADE], [30]')
+    expect(md).toContain('Source: https://ccm-labs.ca/prompts/quote-assistant')
+  })
+
+  it('numbers the parts of a multi-part prompt', () => {
+    const md = promptSkillMarkdown({ ...prompt, prompts: [{ label: 'Set up', text: 'One.' }, { text: 'Two.' }] })
+    expect(md).toContain('## Part 1: Set up')
+    expect(md).toContain('## Part 2\n\nTwo.')
+    expect(md).not.toContain('[brackets]')
+  })
+
+  it('zips it as <slug>/SKILL.md', () => {
+    const entries = readZip(promptSkillZip(prompt))
+    expect(entries.map(e => e.name)).toEqual(['quote-assistant/', 'quote-assistant/SKILL.md'])
+    expect(entries[1]!.data.toString('utf8')).toBe(promptSkillMarkdown(prompt))
+  })
+})
+
+describe('promptSkillSlugs', () => {
+  it('lists prompts with a skill field, and drafts only when asked', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'prompts-'))
+    writeFileSync(join(dir, 'a.md'), '---\ntitle: A\nskill:\n  description: x\ndraft: false\n---\n')
+    writeFileSync(join(dir, 'b.md'), '---\ntitle: B\nskill:\n  description: x\ndraft: true\n---\n')
+    writeFileSync(join(dir, 'c.md'), '---\ntitle: C\n---\nskill: in the body, not frontmatter\n')
+    expect(promptSkillSlugs(dir, false)).toEqual(['a'])
+    expect(promptSkillSlugs(dir, true)).toEqual(['a', 'b'])
   })
 })
