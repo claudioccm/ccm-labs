@@ -11,44 +11,35 @@ const { data: prompts } = await useAsyncData('prompts-index', () => {
   return showDrafts ? query.all() : query.where('draft', '=', false).all()
 })
 
-// Skills share the grid (2026-10-29), newest first among the prompts, under
-// their own "Skills" chip.
+// Skills share the grid (2026-10-29), newest first among the prompts. They
+// have no category, so they show under All only; prompts that are also a
+// skill carry an "Also a skill" marker instead of a Skills chip (2026-11-01).
 const { data: skills } = await useAsyncData('skills-index', () => {
   const query = queryCollection('skills').order('date', 'DESC')
   return showDrafts ? query.all() : query.where('draft', '=', false).all()
 })
 
-const SKILLS_CHIP = 'Skills'
-
-// Each item is filed under its category, or "Skills" for a skill. Prompts
-// that are also offered as a skill show under the Skills chip too (2026-11-01).
 const items = computed(() => [
-  ...(prompts.value ?? []).map(p => ({ ...p, group: p.category as string, kind: 'prompt' as const, alsoSkill: !!p.skill })),
-  ...(skills.value ?? []).map(s => ({ ...s, category: 'Skill', group: SKILLS_CHIP, kind: 'skill' as const, alsoSkill: false })),
+  ...(prompts.value ?? []).map(p => ({ ...p, group: p.category as string | null, kind: 'prompt' as const, alsoSkill: !!p.skill })),
+  ...(skills.value ?? []).map(s => ({ ...s, category: 'Skill', group: null, kind: 'skill' as const, alsoSkill: false })),
 ].sort((a, b) => Date.parse(b.date) - Date.parse(a.date)))
 
-function inChip(item: { group: string, alsoSkill: boolean }, chip: string): boolean {
-  return item.group === chip || (chip === SKILLS_CHIP && item.alsoSkill)
-}
-
-// Chips follow the groups present in the listed items, like /writing.
+// Chips follow the categories present in the listed prompts, like /writing.
 const chips = computed<{ label: string, category: string | null }[]>(() => {
   const present: string[] = []
   for (const item of items.value) {
-    const groups = item.alsoSkill ? [SKILLS_CHIP, item.group] : [item.group]
-    for (const group of groups) {
-      if (!present.includes(group)) present.push(group)
-    }
+    if (item.group && !present.includes(item.group)) present.push(item.group)
   }
   return [{ label: 'All', category: null }, ...present.map(c => ({ label: c, category: c }))]
 })
 
 const activeCategory = ref<string | null>(null) // null = All
 
-const visible = computed(() => {
-  const chip = activeCategory.value
-  return chip === null ? items.value : items.value.filter(item => inChip(item, chip))
-})
+const visible = computed(() =>
+  activeCategory.value === null
+    ? items.value
+    : items.value.filter(item => item.group === activeCategory.value),
+)
 
 const canonical = 'https://ccm-labs.ca/prompts'
 const title = 'Free AI prompts for small businesses — CCM Labs'
