@@ -41,3 +41,21 @@ export function buildSkillDownloads(skillsDir: string, outDir: string): string[]
   }
   return names
 }
+
+// Slugs of prompts that are also offered as skills: a top-level `skill:` key in
+// the frontmatter. Drafts only when the build shows drafts (see
+// app/utils/promptDrafts.ts). The files themselves come from Nitro routes.
+export function promptSkillSlugs(promptsDir: string, includeDrafts: boolean): string[] {
+  let files: string[] = []
+  try {
+    files = readdirSync(promptsDir).filter(f => f.endsWith('.md')).sort()
+  }
+  catch {
+    return []
+  }
+  return files.filter((f) => {
+    const frontmatter = readFileSync(join(promptsDir, f), 'utf8').split(/^---\s*$/m)[1] ?? ''
+    if (!/^skill:/m.test(frontmatter)) return false
+    return includeDrafts || !/^draft:\s*true\s*$/m.test(frontmatter)
+  }).map(f => f.slice(0, -3))
+}

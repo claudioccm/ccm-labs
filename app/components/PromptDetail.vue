@@ -10,6 +10,7 @@ const props = defineProps<{ doc: PromptsCollectionItem }>()
 const route = useRoute()
 const prompt = computed(() => props.doc)
 const slug = computed(() => promptSlug(prompt.value.path))
+const skill = computed(() => skillFiles(slug.value))
 const hasNotes = computed(() => (prompt.value.body?.value?.length ?? 0) > 0)
 
 // Related: same category first, then the newest others, three at most.
@@ -77,6 +78,34 @@ useSeoMeta({
           />
         </div>
 
+        <!-- Also a skill (2026-11-01): the same prompt as a SKILL.md built from
+             it (server/utils/promptSkill.ts). Copy stays the primary action. -->
+        <div v-if="prompt.skill" class="prompt-copy prompt-skill">
+          <div class="prompt-copy__text">
+            <p class="prompt-copy__label">Use it as a skill</p>
+            <p class="prompt-copy__note">
+              Install it once and your AI runs this prompt when you ask for it. No pasting.
+            </p>
+          </div>
+          <a
+            class="btn btn-ghost prompt-copy__btn"
+            :href="skill.zip"
+            :download="`${slug}.zip`"
+            @click="trackSkillDownload(slug, 'zip', 'prompt_page')"
+          >Download .zip</a>
+          <ul class="prompt-skill__install">
+            <li>Claude app or claude.ai: Customize, then Skills, then + and Upload a skill. Pick the .zip.</li>
+            <li>Claude Code: unzip it into <code>~/.claude/skills/</code>, then type <code>/{{ slug }}</code>.</li>
+          </ul>
+          <a
+            class="skill-download__view mono"
+            :href="skill.md"
+            target="_blank"
+            rel="noopener"
+            @click="trackSkillDownload(slug, 'view', 'prompt_page')"
+          >View SKILL.md <span aria-hidden="true">↗</span></a>
+        </div>
+
         <div v-if="prompt.steps?.length" class="prompt-page__section">
           <h2 id="how-to-use" class="prompt-page__heading">How to use it</h2>
           <ol class="prompt-steps">
@@ -114,6 +143,7 @@ useSeoMeta({
                 :category="item.category"
                 :audience="item.audience"
                 :description="item.description"
+                :also-skill="!!item.skill"
               />
             </li>
           </ul>

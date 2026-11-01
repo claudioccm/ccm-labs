@@ -80,6 +80,8 @@ steps:
   - "Read it, add a line only you could write, and send it yourself. \"Close it out\" is an answer too, and it clears your list."
 check: It only writes drafts, so nothing goes out until you send it. Check the job and the dates first. A follow-up about the wrong job undoes the good the quote did.
 builtVersion: The one CCM Labs builds watches your sent quotes and drafts the nudge when one goes quiet, ready for you to approve.
+skill:
+  description: 'Writes a short follow-up for a quote that got no answer, from the quote link, PDF or screenshot, as a draft in your email or ready to copy. Use when someone says "follow up on this quote", "they never replied to my quote", "nudge this estimate", or shares a quote that went quiet.'
 date: 2026-10-16T12:00:00Z
 draft: false
 ---

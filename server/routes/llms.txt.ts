@@ -72,7 +72,7 @@ export default defineEventHandler(async (event) => {
     '## Free prompts',
     '',
     `- [Prompt gallery](${BASE}/prompts): Copy-paste AI prompts for small businesses. Free, no sign-up.`,
-    ...prompts.map(p => `- [${p.title}](${BASE}${p.path}): ${p.description}`),
+    ...prompts.map(p => `- [${p.title}](${BASE}${p.path})${p.skill ? ` (also a skill: ${BASE}/skills/${p.path.split('/').pop()}.zip)` : ''}: ${p.description}`),
     ...skills.map(s => `- [${s.title}](${BASE}${s.path}) (skill, download: ${BASE}/skills/${s.path.split('/').pop()}.zip): ${s.description}`),
     '',
     '## Contact',

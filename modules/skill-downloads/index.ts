@@ -11,10 +11,16 @@
  * dir: `nuxt generate` clears that after modules run.) The zip is always built from the
  * repo copy, so it can't drift from the file on the page. The page entry for a
  * skill lives in content/skills/<name>.md.
+ *
+ * Prompts with a `skill` field are skills too (2026-11-01): their files are
+ * built by Nitro routes from the prompt (server/utils/promptSkill.ts), and this
+ * module adds those routes to the prerender list, since the crawler doesn't
+ * follow links to .zip or .md files.
  */
 import { join } from 'node:path'
 import { defineNuxtModule } from 'nuxt/kit'
-import { buildSkillDownloads } from './build'
+import { includePromptDrafts } from '../../app/utils/promptDrafts'
+import { buildSkillDownloads, promptSkillSlugs } from './build'
 
 export default defineNuxtModule({
   meta: { name: 'skill-downloads' },
@@ -24,5 +30,10 @@ export default defineNuxtModule({
     buildSkillDownloads(join(nuxt.options.rootDir, 'skills'), outDir)
     nuxt.options.nitro.publicAssets ||= []
     nuxt.options.nitro.publicAssets.push({ dir: outDir, baseURL: '/', maxAge: 0 })
+
+    const slugs = promptSkillSlugs(join(nuxt.options.rootDir, 'content/prompts'), includePromptDrafts(process.env))
+    nuxt.options.nitro.prerender ||= {}
+    nuxt.options.nitro.prerender.routes ||= []
+    nuxt.options.nitro.prerender.routes.push(...slugs.flatMap(s => [`/skills/${s}.zip`, `/skills/${s}/SKILL.md`]))
   },
 })

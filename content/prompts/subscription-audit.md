@@ -139,6 +139,8 @@ steps:
   - "On the page it builds, mark each subscription Keep, Cancel or Review. Click Send my choices to the assistant and paste the result back into the chat."
   - "Cancel the ones you marked, following the steps it gives you. Nothing gets cancelled without your yes."
 check: You're giving an AI company your card statement. Cover the card number and your address first if you'd rather not share them.
+skill:
+  description: 'Finds every recurring subscription on a card statement, lets you mark each one Keep, Cancel or Review on a small page, then helps you cancel the ones you pick. Use when someone says "audit my subscriptions", "what am I paying for", "cancel my subscriptions", or shares a card statement to check.'
 date: 2026-10-20T12:00:00Z
 draft: false
 ---

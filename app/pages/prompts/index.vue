@@ -11,26 +11,24 @@ const { data: prompts } = await useAsyncData('prompts-index', () => {
   return showDrafts ? query.all() : query.where('draft', '=', false).all()
 })
 
-// Skills share the grid (2026-10-29), newest first among the prompts, under
-// their own "Skills" chip.
+// Skills share the grid (2026-10-29), newest first among the prompts. They
+// have no category, so they show under All only; prompts that are also a
+// skill carry an "Also a skill" marker instead of a Skills chip (2026-11-01).
 const { data: skills } = await useAsyncData('skills-index', () => {
   const query = queryCollection('skills').order('date', 'DESC')
   return showDrafts ? query.all() : query.where('draft', '=', false).all()
 })
 
-const SKILLS_CHIP = 'Skills'
-
-// Each item is filed under one chip: its category, or "Skills".
 const items = computed(() => [
-  ...(prompts.value ?? []).map(p => ({ ...p, group: p.category as string, kind: 'prompt' as const })),
-  ...(skills.value ?? []).map(s => ({ ...s, category: 'Skill', group: SKILLS_CHIP, kind: 'skill' as const })),
+  ...(prompts.value ?? []).map(p => ({ ...p, group: p.category as string | null, kind: 'prompt' as const, alsoSkill: !!p.skill })),
+  ...(skills.value ?? []).map(s => ({ ...s, category: 'Skill', group: null, kind: 'skill' as const, alsoSkill: false })),
 ].sort((a, b) => Date.parse(b.date) - Date.parse(a.date)))
 
-// Chips follow the groups present in the listed items, like /writing.
+// Chips follow the categories present in the listed prompts, like /writing.
 const chips = computed<{ label: string, category: string | null }[]>(() => {
   const present: string[] = []
   for (const item of items.value) {
-    if (!present.includes(item.group)) present.push(item.group)
+    if (item.group && !present.includes(item.group)) present.push(item.group)
   }
   return [{ label: 'All', category: null }, ...present.map(c => ({ label: c, category: c }))]
 })
@@ -99,6 +97,7 @@ useSeoMeta({
                 :description="prompt.description"
                 :draft="prompt.draft"
                 :kind="prompt.kind"
+                :also-skill="prompt.alsoSkill"
               />
             </li>
           </ul>

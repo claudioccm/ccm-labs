@@ -246,6 +246,13 @@ const prompts = defineCollection({
     keyword: z.string().optional(),
     // Instagram post the prompt was transcribed from, if any.
     sourcePost: z.string().optional(),
+    // Also offered as an Agent Skill (2026-11-01). The SKILL.md and zip are
+    // built from this prompt (server/utils/promptSkill.ts); `description` is
+    // the skill's trigger line: what it does and when to use it, in the
+    // reader's words.
+    skill: z.object({
+      description: z.string().min(1),
+    }).optional(),
     date: datetimeOffset(),
     draft: z.boolean().default(false),
   }),

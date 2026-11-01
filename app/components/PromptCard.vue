@@ -1,5 +1,6 @@
 <!-- Prompt gallery card: category, audience, title and one-line description.
-     A skill (kind 'skill') shows a Skill label in place of the category. -->
+     A skill (kind 'skill') shows a Skill label in place of the category; a
+     prompt that is also offered as a skill gets a small "Also a skill" marker. -->
 <script setup lang="ts">
 interface Props {
   /** Full route path (e.g. '/prompts/foo'), passed through as-is. */
@@ -10,9 +11,10 @@ interface Props {
   description: string
   draft?: boolean
   kind?: 'prompt' | 'skill'
+  alsoSkill?: boolean
 }
 
-withDefaults(defineProps<Props>(), { kind: 'prompt' })
+withDefaults(defineProps<Props>(), { kind: 'prompt', alsoSkill: false })
 </script>
 
 <template>
@@ -20,6 +22,10 @@ withDefaults(defineProps<Props>(), { kind: 'prompt' })
     <div class="post-card__meta mono">
       <span v-if="kind === 'skill'" class="prompt-card__kind">Skill</span>
       <span v-else>{{ category }}</span>
+      <template v-if="alsoSkill">
+        <span class="post-card__sep" aria-hidden="true">/</span>
+        <span>Also a skill</span>
+      </template>
       <template v-if="draft">
         <span class="post-card__sep" aria-hidden="true">/</span>
         <span class="prompt-draft">Draft</span>
