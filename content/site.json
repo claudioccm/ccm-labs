@@ -149,6 +149,15 @@
         "alt": "_refs — a local library for design references"
       },
       {
+        "id": "teleprompter",
+        "title": "Teleprompter",
+        "tag": "RECORDING VIDEO",
+        "description": "Scrolls your script as you read it aloud in Portuguese, so you can record without memorizing.",
+        "url": "https://teleprompter-ptbr.netlify.app",
+        "image": "",
+        "alt": "Teleprompter — follows your voice in Brazilian Portuguese"
+      },
+      {
         "id": "ccmdesign",
         "title": "CCMDesign",
         "tag": "DESIGN STUDIO",
